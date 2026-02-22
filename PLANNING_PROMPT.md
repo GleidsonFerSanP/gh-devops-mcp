@@ -47,6 +47,7 @@ ARQUITETURA OBRIGATÓRIA
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ```
+
 gh-devops-mcp/
 ├── src/                              # MCP Server source
 │   ├── index.ts                      # Main MCP server entry point
@@ -98,6 +99,7 @@ gh-devops-mcp/
 ├── AGENTS.md
 ├── README.md
 └── IMPLEMENTATION_PLAN.md
+
 ```
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -110,6 +112,7 @@ defina: nome, descrição rica para AI, inputSchema com types, endpoint HTTP exa
 e formato de resposta.
 
 ### Domínio 1: Workflows (GitHub Actions)
+
 API Base: /repos/{owner}/{repo}/actions/workflows
 Tools a cobrir:
 - list_workflows — GET /repos/{owner}/{repo}/actions/workflows
@@ -120,6 +123,7 @@ Tools a cobrir:
 - get_workflow_usage — GET /repos/{owner}/{repo}/actions/workflows/{workflow_id}/timing
 
 ### Domínio 2: Workflow Runs & Jobs
+
 API Base: /repos/{owner}/{repo}/actions/runs
 Tools a cobrir:
 - list_workflow_runs — GET /repos/{owner}/{repo}/actions/runs
@@ -138,6 +142,7 @@ Tools a cobrir:
   for investigating CI/CD pipeline failures."
 
 ### Domínio 3: Artifacts
+
 API Base: /repos/{owner}/{repo}/actions/artifacts
 Tools:
 - list_artifacts — GET /repos/{owner}/{repo}/actions/artifacts
@@ -146,6 +151,7 @@ Tools:
 - delete_artifact — DELETE /repos/{owner}/{repo}/actions/artifacts/{artifact_id}
 
 ### Domínio 4: Deployments
+
 API Base: /repos/{owner}/{repo}/deployments
 Tools:
 - list_deployments — GET /repos/{owner}/{repo}/deployments
@@ -160,6 +166,7 @@ Tools:
   description, environment_url, log_url, auto_inactive
 
 ### Domínio 5: Environments
+
 API Base: /repos/{owner}/{repo}/environments
 Tools:
 - list_environments — GET /repos/{owner}/{repo}/environments
@@ -170,6 +177,7 @@ Tools:
 - get_environment_protection_rules — Extraído de get_environment (protection_rules array)
 
 ### Domínio 6: Secrets & Variables
+
 API Base: /repos/{owner}/{repo}/actions/secrets e /repos/{owner}/{repo}/actions/variables
 Tools:
 - list_repo_secrets — GET /repos/{owner}/{repo}/actions/secrets
@@ -188,6 +196,7 @@ Tools:
 - list_environment_variables — GET /repos/{owner}/{repo}/environments/{env}/variables
 
 ### Domínio 7: Releases
+
 API Base: /repos/{owner}/{repo}/releases
 Tools:
 - list_releases — GET /repos/{owner}/{repo}/releases
@@ -201,6 +210,7 @@ Tools:
   Body: tag_name, target_commitish, previous_tag_name, configuration_file_path
 
 ### Domínio 8: Branches & Protection
+
 API Base: /repos/{owner}/{repo}/branches
 Tools:
 - list_branches — GET /repos/{owner}/{repo}/branches
@@ -212,6 +222,7 @@ Tools:
 - list_commit_statuses — GET /repos/{owner}/{repo}/commits/{ref}/statuses
 
 ### Domínio 9: Pull Requests
+
 API Base: /repos/{owner}/{repo}/pulls
 Tools:
 - list_pull_requests — GET /repos/{owner}/{repo}/pulls
@@ -226,6 +237,7 @@ Tools:
   Combina: GET checks + GET statuses para um PR e apresenta resumo unificado do CI
 
 ### Domínio 10: Check Runs & Suites
+
 API Base: /repos/{owner}/{repo}/check-runs e /repos/{owner}/{repo}/check-suites
 Tools:
 - list_check_runs_for_ref — GET /repos/{owner}/{repo}/commits/{ref}/check-runs
@@ -234,6 +246,7 @@ Tools:
 - rerequest_check_suite — POST /repos/{owner}/{repo}/check-suites/{check_suite_id}/rerequest
 
 ### Domínio 11: Security
+
 API Base: /repos/{owner}/{repo}/
 Tools:
 - list_dependabot_alerts — GET /repos/{owner}/{repo}/dependabot/alerts
@@ -251,6 +264,7 @@ Tools:
   vulnerability counts by severity, secret leaks, and code quality issues."
 
 ### Domínio 12: Packages
+
 API Base: /users/{username}/packages ou /orgs/{org}/packages
 Tools:
 - list_packages — GET /user/packages?package_type={type}
@@ -259,6 +273,7 @@ Tools:
 - delete_package_version — DELETE /user/packages/{package_type}/{package_name}/versions/{id}
 
 ### Domínio 13: Repository
+
 API Base: /repos/{owner}/{repo}
 Tools:
 - get_repository — GET /repos/{owner}/{repo}
@@ -386,14 +401,14 @@ VS CODE EXTENSION — ESPECIFICAÇÃO
 ### Configuração — DIFERENCIAL: Auto-detect repo
 
 A extension deve tentar detectar automaticamente o `owner` e `repo` a partir do
-git remote do workspace aberto (`git remote get-url origin`). Isso elimina a
+git remote do workspace aberto ( `git remote get-url origin` ). Isso elimina a
 necessidade de configuração manual na maioria dos casos.
 
 ### Credenciais
 
-- GitHub Token salvo no VS Code SecretStorage (key: `ghDevops.token`)
-- Fallback para env var `GITHUB_TOKEN`
-- Webview de configuração similar ao datadog-mcp com campo de token, API URL,
+* GitHub Token salvo no VS Code SecretStorage (key: `ghDevops.token`)
+* Fallback para env var `GITHUB_TOKEN`
+* Webview de configuração similar ao datadog-mcp com campo de token, API URL, 
   owner, repo, e botão de teste
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -404,6 +419,7 @@ O instructions file (github-devops.instructions.md) deve incluir:
 
 1. Fluxos de troubleshooting de CI/CD:
    "When investigating CI/CD failures:
+
     1) get_failed_runs to see recent failures
     2) get_workflow_run for details on the specific run
     3) list_workflow_jobs to find which job failed
@@ -412,6 +428,7 @@ O instructions file (github-devops.instructions.md) deve incluir:
 
 2. Fluxos de segurança:
    "When assessing repository security:
+
     1) get_security_overview for a full picture
     2) list_dependabot_alerts with severity=critical,high
     3) list_code_scanning_alerts for code quality
@@ -419,6 +436,7 @@ O instructions file (github-devops.instructions.md) deve incluir:
 
 3. Fluxos de deployment:
    "When managing deployments:
+
     1) list_environments to see available targets
     2) list_deployments to check recent deployments
     3) create_deployment to deploy a ref
@@ -426,6 +444,7 @@ O instructions file (github-devops.instructions.md) deve incluir:
 
 4. Fluxos de release:
    "When preparing a release:
+
     1) list_releases to see version history
     2) generate_release_notes for automatic changelog
     3) create_release with the generated notes
@@ -441,8 +460,10 @@ STEPS DE IMPLEMENTAÇÃO — ESTRUTURA ESPERADA
 Organize os STEPs exatamente nesta ordem:
 
 STEP 1: Scaffolding (package.json, tsconfig.json, .gitignore, LICENSE, pastas)
-STEP 2: GitHub HTTP Client + Auth + Utils (github-client.ts, auth.ts, error-handler.ts,
+STEP 2: GitHub HTTP Client + Auth + Utils (github-client.ts, auth.ts, error-handler.ts, 
+
         time-helpers.ts, formatters.ts)
+
 STEP 3: Tools — Workflows (workflows.ts)
 STEP 4: Tools — Workflow Runs & Jobs (workflow-runs.ts)
 STEP 5: Tools — Deployments (deployments.ts)
@@ -457,16 +478,16 @@ STEP 13: Documentação (instructions, README, CHANGELOG, .vscodeignore, BUILD_P
 STEP 14: Build, QA & Git (compilar, testar, corrigir, commit, push)
 
 GRAFO DE DEPENDÊNCIAS:
-  STEP 1 → STEP 2 → [STEPs 3,4,5,6,7,8,9 em paralelo] + [STEP 12, STEP 13 em paralelo]
+  STEP 1 → STEP 2 → [STEPs 3, 4, 5, 6, 7, 8, 9 em paralelo] + [STEP 12, STEP 13 em paralelo]
   → STEP 10 → STEP 11 → STEP 14
 
 PARA CADA STEP, INCLUA:
-- Descrição da missão
-- Lista de arquivos a criar/editar
-- Código detalhado ou pseudo-código com tipos TypeScript
-- Endpoints HTTP exatos com params e body
-- Dependências de outros steps
-- Critério de sucesso testável
+* Descrição da missão
+* Lista de arquivos a criar/editar
+* Código detalhado ou pseudo-código com tipos TypeScript
+* Endpoints HTTP exatos com params e body
+* Dependências de outros steps
+* Critério de sucesso testável
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 REFERÊNCIAS PARA PESQUISA
@@ -497,29 +518,29 @@ PADRÕES DE CÓDIGO (do projeto referência)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Cada arquivo de tools deve exportar:
-- export const xyzTools: Array de { name, description, inputSchema }
-- export async function handleXyzTool(name: string, args: any, client: GitHubClient): Promise<string>
+* export const xyzTools: Array de { name, description, inputSchema }
+* export async function handleXyzTool(name: string, args: any, client: GitHubClient): Promise<string>
 
 O index.ts deve:
-- Usar shebang #!/usr/bin/env node
-- Importar Server e StdioServerTransport do MCP SDK
-- Criar classe principal que unifica todas as tools
-- Usar Map<string, handler> para routing eficiente
-- Ler credenciais de env vars
+* Usar shebang #!/usr/bin/env node
+* Importar Server e StdioServerTransport do MCP SDK
+* Criar classe principal que unifica todas as tools
+* Usar Map<string, handler> para routing eficiente
+* Ler credenciais de env vars
 
 A extension deve:
-- Registrar MCP Server via vscode.lm.registerMcpServerDefinitionProvider
-- Usar vscode.McpStdioServerDefinition
-- Salvar token no SecretStorage
-- Auto-detectar repo do git remote
-- Ter status bar item e webview de configuração
+* Registrar MCP Server via vscode.lm.registerMcpServerDefinitionProvider
+* Usar vscode. McpStdioServerDefinition
+* Salvar token no SecretStorage
+* Auto-detectar repo do git remote
+* Ter status bar item e webview de configuração
 
 Typescript config:
-- target: ES2022
-- module: NodeNext
-- moduleResolution: NodeNext
-- strict: true
-- type: "module" no package.json
+* target: ES2022
+* module: NodeNext
+* moduleResolution: NodeNext
+* strict: true
+* type: "module" no package.json
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 REQUISITOS DO OUTPUT
