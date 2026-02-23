@@ -1,12 +1,19 @@
 # Changelog
 
+## [1.0.2] - 2026-02-22
+
+### Fixed
+
+* Copy `libsodium.mjs` next to `libsodium-wrappers.mjs` to fix `ERR_MODULE_NOT_FOUND` crash on startup
+
 ## [1.0.1] - 2026-02-22
 
 ### Fixed
-- Output Channel criado (`View > Output > GitHub DevOps MCP`) para logs da extensão
-- Corrigido path do servidor MCP (`mcp-server/index.js` em vez de `mcp-server/dist/index.js`)
-- Guard de API para `vscode.lm.registerMcpServerDefinitionProvider` (compatibilidade com VS Code < 1.99)
-- Removido EventEmitter desnecessário no provider MCP
+
+* Output Channel criado (`View > Output > GitHub DevOps MCP`) para logs da extensão
+* Corrigido path do servidor MCP (`mcp-server/index.js` em vez de `mcp-server/dist/index.js`)
+* Guard de API para `vscode.lm.registerMcpServerDefinitionProvider` (compatibilidade com VS Code < 1.99)
+* Removido EventEmitter desnecessário no provider MCP
 
 ## [1.0.0] - 2026-02-22
 

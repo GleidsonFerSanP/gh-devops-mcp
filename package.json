@@ -11,7 +11,7 @@
         "build": "tsc",
         "dev": "tsc --watch",
         "start": "node dist/index.js",
-        "copy-to-extension": "mkdir -p extension/mcp-server && cp -r dist/* extension/mcp-server/ && cp -r node_modules extension/mcp-server/ && echo '{\"type\":\"module\"}' > extension/mcp-server/package.json"
+        "copy-to-extension": "mkdir -p extension/mcp-server && cp -r dist/* extension/mcp-server/ && cp -r node_modules extension/mcp-server/ && cp node_modules/libsodium/dist/modules-esm/libsodium.mjs extension/mcp-server/node_modules/libsodium-wrappers/dist/modules-esm/libsodium.mjs && echo '{\"type\":\"module\"}' > extension/mcp-server/package.json"
     },
     "dependencies": {
         "@modelcontextprotocol/sdk": "^1.12.1",
