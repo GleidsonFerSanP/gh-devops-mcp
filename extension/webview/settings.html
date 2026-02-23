@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';" />
+  <title>GitHub DevOps — Configure</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: var(--vscode-font-family);
+      font-size: var(--vscode-font-size);
+      color: var(--vscode-foreground);
+      background-color: var(--vscode-editor-background);
+      padding: 20px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-size: 1.4em;
+      color: var(--vscode-textLink-foreground);
+      border-bottom: 1px solid var(--vscode-panel-border);
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+    }
+    h2 {
+      font-size: 1.1em;
+      color: var(--vscode-foreground);
+      margin-top: 24px;
+    }
+    label {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--vscode-foreground);
+      font-weight: 500;
+    }
+    .description {
+      font-size: 0.85em;
+      color: var(--vscode-descriptionForeground);
+      margin-bottom: 6px;
+    }
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 6px 8px;
+      background: var(--vscode-input-background);
+      color: var(--vscode-input-foreground);
+      border: 1px solid var(--vscode-input-border);
+      border-radius: 3px;
+      font-family: var(--vscode-font-family);
+      font-size: var(--vscode-font-size);
+      outline: none;
+    }
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+      border-color: var(--vscode-focusBorder);
+    }
+    .form-group { margin-bottom: 16px; }
+    .button-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    button {
+      padding: 6px 14px;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      font-family: var(--vscode-font-family);
+      font-size: var(--vscode-font-size);
+    }
+    .btn-primary {
+      background: var(--vscode-button-background);
+      color: var(--vscode-button-foreground);
+    }
+    .btn-primary:hover { background: var(--vscode-button-hoverBackground); }
+    .btn-secondary {
+      background: var(--vscode-button-secondaryBackground);
+      color: var(--vscode-button-secondaryForeground);
+    }
+    .btn-secondary:hover { background: var(--vscode-button-secondaryHoverBackground); }
+    #status {
+      margin-top: 12px;
+      padding: 8px 12px;
+      border-radius: 3px;
+      display: none;
+    }
+    #status.success {
+      background: var(--vscode-notificationsInfoIconForeground);
+      color: var(--vscode-editor-background);
+    }
+    #status.error {
+      background: var(--vscode-notificationsErrorIconForeground);
+      color: var(--vscode-editor-background);
+    }
+    #status.info {
+      background: var(--vscode-editor-inactiveSelectionBackground);
+      color: var(--vscode-foreground);
+    }
+    .divider {
+      border: none;
+      border-top: 1px solid var(--vscode-panel-border);
+      margin: 24px 0;
+    }
+    a { color: var(--vscode-textLink-foreground); }
+  </style>
+</head>
+<body>
+  <h1>⚙️ GitHub DevOps MCP — Configuration</h1>
+
+  <!-- Authentication -->
+  <h2>🔑 Authentication</h2>
+  <div class="form-group">
+    <label for="token">Personal Access Token (PAT)</label>
+    <div class="description">
+      Create at <a href="https://github.com/settings/tokens" target="_blank">github.com/settings/tokens</a>.
+      Required scopes: <code>repo</code>, <code>workflow</code>, <code>write:packages</code>, <code>security_events</code>
+    </div>
+    <input type="password" id="token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" />
+  </div>
+  <div class="button-row">
+    <button class="btn-secondary" onclick="testConnection()">Test Connection</button>
+    <button class="btn-primary" onclick="saveToken()">Save Token</button>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- Settings -->
+  <h2>⚙️ Default Repository</h2>
+  <div class="form-group">
+    <label for="apiUrl">GitHub API URL</label>
+    <div class="description">Leave default for github.com. Change for GitHub Enterprise Server.</div>
+    <input type="text" id="apiUrl" placeholder="https://api.github.com" />
+  </div>
+  <div class="form-group">
+    <label for="defaultOwner">Default Owner</label>
+    <div class="description">GitHub username or organization name.</div>
+    <input type="text" id="defaultOwner" placeholder="octocat" />
+  </div>
+  <div class="form-group">
+    <label for="defaultRepo">Default Repository</label>
+    <div class="description">Repository name (without owner). Detected from git config if available.</div>
+    <input type="text" id="defaultRepo" placeholder="my-repo" />
+  </div>
+  <div class="button-row">
+    <button class="btn-primary" onclick="saveSettings()">Save Settings</button>
+  </div>
+
+  <div id="status"></div>
+
+  <script>
+    const vscode = acquireVsCodeApi();
+
+    // Notify extension that webview is ready
+    window.addEventListener('load', () => {
+      vscode.postMessage({ command: 'ready' });
+    });
+
+    // Handle messages from extension
+    window.addEventListener('message', (event) => {
+      const data = event.data;
+      switch (data.command) {
+        case 'init':
+          if (data.config) {
+            if (data.config.token) document.getElementById('token').placeholder = 'Token is saved (enter new value to update)';
+            if (data.config.apiUrl) document.getElementById('apiUrl').value = data.config.apiUrl;
+            if (data.config.defaultOwner) document.getElementById('defaultOwner').value = data.config.defaultOwner;
+            if (data.config.defaultRepo) document.getElementById('defaultRepo').value = data.config.defaultRepo;
+          }
+          break;
+        case 'tokenSaved':
+          showStatus(data.message, data.success ? 'success' : 'error');
+          if (data.success) document.getElementById('token').value = '';
+          break;
+        case 'connectionResult':
+          showStatus(data.message, data.success ? 'success' : 'error');
+          break;
+        case 'settingsSaved':
+          showStatus(data.message, data.success ? 'success' : 'error');
+          break;
+        case 'error':
+          showStatus(data.message, 'error');
+          break;
+      }
+    });
+
+    function saveToken() {
+      const token = document.getElementById('token').value.trim();
+      if (!token) {
+        showStatus('❌ Please enter a token.', 'error');
+        return;
+      }
+      vscode.postMessage({ command: 'saveToken', token });
+    }
+
+    function testConnection() {
+      const token = document.getElementById('token').value.trim();
+      showStatus('Testing connection...', 'info');
+      vscode.postMessage({ command: 'testConnection', token: token || undefined });
+    }
+
+    function saveSettings() {
+      const apiUrl = document.getElementById('apiUrl').value.trim();
+      const defaultOwner = document.getElementById('defaultOwner').value.trim();
+      const defaultRepo = document.getElementById('defaultRepo').value.trim();
+      vscode.postMessage({ command: 'saveSettings', apiUrl, defaultOwner, defaultRepo });
+    }
+
+    function showStatus(message, type) {
+      const el = document.getElementById('status');
+      el.textContent = message;
+      el.className = type;
+      el.style.display = 'block';
+      if (type !== 'info') {
+        setTimeout(() => { el.style.display = 'none'; }, 5000);
+      }
+    }
+  </script>
+</body>
+</html>

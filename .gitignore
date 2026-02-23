@@ -1,0 +1,9 @@
+node_modules/
+dist/
+extension/dist/
+extension/mcp-server/
+extension/node_modules/
+*.vsix
+.env
+.DS_Store
+*.log

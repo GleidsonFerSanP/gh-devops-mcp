@@ -1,0 +1,130 @@
+{
+    "name": "gh-devops",
+    "displayName": "GitHub DevOps for Copilot",
+    "description": "AI-powered GitHub DevOps tools — Actions, Deployments, Releases, Security and more directly from GitHub Copilot Chat",
+    "version": "1.0.0",
+    "publisher": "GleidsonFerSanP",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/gleidsonfersanp/gh-devops-mcp"
+    },
+    "icon": "icon.png",
+    "engines": {
+        "vscode": "^1.85.0"
+    },
+    "categories": [
+        "AI",
+        "Other",
+        "SCM Providers"
+    ],
+    "keywords": [
+        "github",
+        "devops",
+        "ci-cd",
+        "github-actions",
+        "deployments",
+        "releases",
+        "security",
+        "mcp",
+        "copilot",
+        "model context protocol"
+    ],
+    "activationEvents": [
+        "onStartupFinished"
+    ],
+    "main": "./dist/extension.js",
+    "contributes": {
+        "mcpServerDefinitionProviders": [
+            {
+                "id": "gh-devops",
+                "label": "GitHub DevOps"
+            }
+        ],
+        "chatInstructions": [
+            {
+                "name": "GitHubDevOpsGuidelines",
+                "description": "Guidelines for using GitHub DevOps MCP tools",
+                "path": "resources/instructions/github-devops.instructions.md"
+            }
+        ],
+        "commands": [
+            {
+                "command": "ghDevops.configure",
+                "title": "Configure GitHub Token"
+            },
+            {
+                "command": "ghDevops.testConnection",
+                "title": "Test GitHub Connection"
+            },
+            {
+                "command": "ghDevops.restart",
+                "title": "Restart GitHub DevOps MCP Server"
+            },
+            {
+                "command": "ghDevops.selectRepo",
+                "title": "Select Repository"
+            },
+            {
+                "command": "ghDevops.viewDocs",
+                "title": "Open GitHub DevOps Documentation"
+            }
+        ],
+        "configuration": {
+            "title": "GitHub DevOps",
+            "properties": {
+                "ghDevops.apiUrl": {
+                    "type": "string",
+                    "default": "https://api.github.com",
+                    "description": "GitHub API base URL (change for GitHub Enterprise)"
+                },
+                "ghDevops.defaultOwner": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Default repository owner (org or user)"
+                },
+                "ghDevops.defaultRepo": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Default repository name"
+                },
+                "ghDevops.logLevel": {
+                    "type": "string",
+                    "enum": [
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                    ],
+                    "default": "info"
+                },
+                "ghDevops.autoStart": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "ghDevops.maxResults": {
+                    "type": "number",
+                    "default": 30,
+                    "description": "Maximum results per API call"
+                },
+                "ghDevops.autoDetectRepo": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Auto-detect owner/repo from git remote in workspace"
+                }
+            }
+        }
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run compile && npm run copy-server",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "copy-server": "cd .. && npm run build && npm run copy-to-extension",
+        "package": "vsce package",
+        "publish": "vsce publish"
+    },
+    "devDependencies": {
+        "@types/vscode": "^1.85.0",
+        "typescript": "^5.8.3",
+        "@vscode/vsce": "^3.5.0"
+    }
+}

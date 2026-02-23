@@ -6,7 +6,9 @@
 
 ---
 
-````
+`
+
+```
 ════════════════════════════════════════════════════════════════════════
 MULTI-AGENT ORCHESTRATION PROMPT — gh-devops-mcp
 ════════════════════════════════════════════════════════════════════════
@@ -186,7 +188,6 @@ Sinal de conclusão: escreva "AGENT-CLIENT: DONE" ao terminar.
 
 [ORCHESTRATOR] Aguarda "AGENT-CLIENT: DONE".
 
-
 ╔══════════════════════════════════════════════════════════════════════╗
 ║ FASE 2 — IMPLEMENTAÇÃO PARALELA (10 agents simultâneos)              ║
 ╚══════════════════════════════════════════════════════════════════════╝
@@ -301,6 +302,7 @@ Crie 2 arquivos:
      // encode secretValue + publicKey em Uint8Array, usar tweetnacl.box.seal
      // resultado: base64 → encrypted_value + key_id no body do PUT
      ```
+
    - Secrets nunca retornam o valor — apenas metadata (nome, timestamps)
 
 Sinal de conclusão: escreva "AGENT-TOOLS-ENVS: DONE" ao terminar.
@@ -316,21 +318,27 @@ Crie 2 arquivos:
 1. src/tools/releases.ts
    - Export const releasesTools (7 tools)
    - Export async function handleReleasesTool(...)
-   - Tools: list_releases, get_release, get_latest_release, create_release,
+   - Tools: list_releases, get_release, get_latest_release, create_release, 
+
             update_release, delete_release, generate_release_notes
+
    - list_releases: exibe badge [DRAFT] e [PRE-RELEASE] quando aplicável
    - get_release: inclui contagem de assets e seus download URLs
    - generate_release_notes: POST /repos/{owner}/{repo}/releases/generate-notes
+
      body: { tag_name, target_commitish, previous_tag_name? }
 
 2. src/tools/branches.ts
    - Export const branchesTools (7 tools)
    - Export async function handleBranchesTool(...)
-   - Tools: list_branches, get_branch, get_branch_protection,
+   - Tools: list_branches, get_branch, get_branch_protection, 
+
             update_branch_protection, delete_branch_protection,
             get_commit_status, list_commit_statuses
+
    - get_branch_protection: formata as protection rules de forma legível
    - get_commit_status: retorna combined state (success/failure/pending)
+
      com contagem de statuses individuais
 
 Sinal de conclusão: escreva "AGENT-TOOLS-RELEASES: DONE" ao terminar.
@@ -346,22 +354,28 @@ Crie 2 arquivos:
 1. src/tools/pull-requests.ts
    - Export const pullRequestsTools (7 tools)
    - Export async function handlePullRequestsTool(...)
-   - Tools: list_pull_requests, get_pull_request, list_pr_commits,
+   - Tools: list_pull_requests, get_pull_request, list_pr_commits, 
+
             list_pr_files, list_pr_reviews, merge_pull_request,
             get_pr_ci_status
+
    - get_pr_ci_status é HIGH-LEVEL: faz 3 chamadas em paralelo via Promise.all():
+
      1) GET /repos/{owner}/{repo}/pulls/{pull_number} → HEAD SHA
      2) GET /repos/{owner}/{repo}/commits/{sha}/check-runs
      3) GET /repos/{owner}/{repo}/commits/{sha}/status
      Combina e formata resumo unificado com contagens e estados
+
    - merge_pull_request: merge_method deve ser enum (merge/squash/rebase)
    - list_pull_requests: suporta filtros state, head, base, sort, direction
 
 2. src/tools/checks.ts
    - Export const checksTools (4 tools)
    - Export async function handleChecksTool(...)
-   - Tools: list_check_runs_for_ref, get_check_run,
+   - Tools: list_check_runs_for_ref, get_check_run, 
+
             list_check_suites, rerequest_check_suite
+
    - list_check_runs_for_ref: usa formatCheckConclusion de formatters.ts
    - get_check_run: inclui output.annotations se presente
 
@@ -378,29 +392,38 @@ Crie 3 arquivos:
 1. src/tools/security.ts
    - Export const securityTools (8 tools)
    - Export async function handleSecurityTool(...)
-   - Tools: list_dependabot_alerts, get_dependabot_alert,
+   - Tools: list_dependabot_alerts, get_dependabot_alert, 
+
             update_dependabot_alert, list_code_scanning_alerts,
             get_code_scanning_alert, list_secret_scanning_alerts,
             get_secret_scanning_alert, get_security_overview
+
    - get_security_overview é HIGH-LEVEL: usa Promise.allSettled() para
+
      buscar os 3 tipos de alerts simultaneamente (alguns repos podem não
      ter code scanning habilitado — use allSettled, não all)
+
    - Formata output com contagens por severidade e exemplos dos piores alertas
 
 2. src/tools/packages.ts
    - Export const packagesTools (4 tools)
    - Export async function handlePackagesTool(...)
-   - Tools: list_packages, get_package, list_package_versions,
+   - Tools: list_packages, get_package, list_package_versions, 
+
             delete_package_version
+
    - Endpoints: /user/packages?package_type={type}
    - package_type enum: npm, maven, docker, nuget, container, rubygems
 
 3. src/tools/repository.ts
    - Export const repositoryTools (6 tools)
    - Export async function handleRepositoryTool(...)
-   - Tools: get_repository, list_webhooks, create_webhook, delete_webhook,
+   - Tools: get_repository, list_webhooks, create_webhook, delete_webhook, 
+
             list_repository_topics, get_repository_stats
+
    - get_repository_stats é HIGH-LEVEL: busca em paralelo com Promise.all():
+
      repo info, languages, top-10 contributors, commit activity (últimas 4 semanas)
 
 Sinal de conclusão: escreva "AGENT-TOOLS-SECURITY: DONE" ao terminar.
@@ -419,7 +442,9 @@ Crie os seguintes arquivos na pasta extension/:
 2. extension/src/extension.ts — extensão VS Code completa com:
    - activate() e deactivate()
    - Auto-detect owner/repo via `git remote get-url origin`
+
      (regex para HTTPS: github.com/owner/repo e SSH: github.com:owner/repo)
+
    - Registro do MCP Server via vscode.lm.registerMcpServerDefinitionProvider
    - McpStdioServerDefinition('gh-devops', 'node', [mcpServerPath], env)
    - SecretStorage para o token (key: 'ghDevops.token')
@@ -431,7 +456,8 @@ Crie os seguintes arquivos na pasta extension/:
 3. extension/src/settings-webview.ts — WebviewPanel para configuração:
    - Cria painel com createWebviewPanel
    - Carrega extension/webview/settings.html via fs.readFileSync
-   - handleMessage(): trata saveToken (SecretStorage), testConnection (fetch /user),
+   - handleMessage(): trata saveToken (SecretStorage), testConnection (fetch /user), 
+
      saveSettings (workspace config update via vscode.workspace.getConfiguration)
 
 4. extension/webview/settings.html — formulário completo com:
@@ -484,7 +510,7 @@ Crie os seguintes arquivos:
 2. extension/.vscodeignore
    - Exclui src/, node_modules/, tsconfig.json, .gitignore
    - INCLUI mcp-server/node_modules/ com negação: !mcp-server/node_modules/**
-   - Exclui *.vsix, .env, .DS_Store, *.log
+   - Exclui *.vsix, .env, . DS_Store, *.log
 
 3. extension/CHANGELOG.md
    - Versão 1.0.0 com lista completa de features adicionadas
@@ -505,7 +531,6 @@ Crie os seguintes arquivos:
 Sinal de conclusão: escreva "AGENT-DOCS: DONE" ao terminar.
 """
 
-
 ╔══════════════════════════════════════════════════════════════════════╗
 ║ FASE 3 — SERVER ENTRY POINT (após Fase 2 concluída)                  ║
 ╚══════════════════════════════════════════════════════════════════════╝
@@ -523,32 +548,33 @@ Crie src/index.ts com:
 Linha 1: #!/usr/bin/env node
 
 Imports obrigatórios (todos com .js):
-- @modelcontextprotocol/sdk/server/index.js
-- @modelcontextprotocol/sdk/server/stdio.js
-- @modelcontextprotocol/sdk/types.js
-- ./client/github-client.js
-- ./client/auth.js
-- Todos os 13 pares [<domain>Tools, handle<Domain>Tool] dos arquivos de tools
+* @modelcontextprotocol/sdk/server/index.js
+* @modelcontextprotocol/sdk/server/stdio.js
+* @modelcontextprotocol/sdk/types.js
+* ./client/github-client.js
+* ./client/auth.js
+* Todos os 13 pares [<domain>Tools, handle<Domain>Tool] dos arquivos de tools
 
 Classe GitHubDevOpsServer:
-- constructor: lê getCredentialsFromEnv(), instancia GitHubClient se token presente,
-  instancia Server({ name: 'gh-devops-mcp', version: '1.0.0' }),
+* constructor: lê getCredentialsFromEnv(), instancia GitHubClient se token presente, 
+  instancia Server({ name: 'gh-devops-mcp', version: '1.0.0' }), 
   chama buildToolHandlerMap(), setupHandlers(), setupErrorHandling()
-- buildToolHandlerMap(): usa Map<string, ToolHandler>; itera cada domain tools array
+* buildToolHandlerMap(): usa Map<string, ToolHandler>; itera cada domain tools array
   e registra o handler correspondente via helper register()
-- setupHandlers():
+* setupHandlers():
   ListToolsRequestSchema → spread de todos os 13 arrays de tools
-  CallToolRequestSchema → se !client, retorna mensagem de setup;
+  CallToolRequestSchema → se !client, retorna mensagem de setup; 
+
     senão lookup no Map e chama handler
-- setupErrorHandling(): server.onerror + SIGINT handler
-- run(): StdioServerTransport + server.connect()
+
+* setupErrorHandling(): server.onerror + SIGINT handler
+* run(): StdioServerTransport + server.connect()
 
 Após criar, execute `npm run build` e confirme ZERO erros TypeScript.
 Se houver erros, corrija-os antes de reportar.
 
 Sinal de conclusão: escreva "AGENT-SERVER: DONE" ao terminar.
 """
-
 
 ╔══════════════════════════════════════════════════════════════════════╗
 ║ FASE 4 — BUILD, QA & GIT (ORCHESTRATOR executa pessoalmente)         ║
@@ -603,9 +629,9 @@ git push origin main
 ```
 
 Ao finalizar, reporte:
-- Número de tools compiladas com sucesso
-- Quaisquer issues encontradas e como foram resolvidas
-- Hash do commit final
+* Número de tools compiladas com sucesso
+* Quaisquer issues encontradas e como foram resolvidas
+* Hash do commit final
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 PROTOCOLO DE COMUNICAÇÃO ENTRE AGENTS
